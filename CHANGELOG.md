@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+
+🆕 New features:
+
+- Added routes resource
+
 ## 0.2.0
 
 🆕 New features:

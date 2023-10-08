@@ -10,16 +10,16 @@ more API resources.
 
 * Provides easy-to-use methods for common tasks related to Kong's Rate Limiting, 
   ACLs, Key Authentication, and other plugins.
-* Simplifies interactions with the API, handling token authentication, and error-checking.
+* Simplifies interactions with the admin API, handling token authentication, and error-checking.
 * Supports pagination for endpoints that return multiple items.
 
 ## Installation
 
-Install directly from the repository
+Install directly from the PyPi
 
 ```bash
 
-pip install git+https://github.com/kongHQ-CX/kong-gateway-client.git
+pip install kong-gateway-client.git
 ```
 
 ## Quick start
@@ -82,4 +82,3 @@ python -m unittest discover -s tests
 
 Contributions are welcome! Please fork the repository and open a pull request 
 with your changes, or open an issue to discuss any improvements or fixes.
-
