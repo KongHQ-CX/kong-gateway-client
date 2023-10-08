@@ -172,3 +172,162 @@ class TestConsumer(unittest.TestCase):
         results = consumer.get_all()
 
         self.assertEqual(len(results), 0)
+
+
+class TestConsumerACL(unittest.TestCase):
+    def setUp(self):
+        mock_response_auth = MagicMock()
+        mock_response_auth.json.return_value = {"auth_key": "some_auth_value"}
+        mock_response_auth.raise_for_status.return_value = None
+
+        self.get_patcher = patch.object(Session, "get", return_value=mock_response_auth)
+        self.request_patcher = patch.object(
+            Session, "request", return_value=mock_response_auth
+        )
+
+        self.mock_get = self.get_patcher.start()
+        self.mock_request = self.request_patcher.start()
+
+        self.client = KongClient("http://mock-url", admin_token="mock-pass")
+        self.consumer = Consumer(self.client)
+
+    def tearDown(self):
+        self.get_patcher.stop()
+        self.request_patcher.stop()
+
+    def test_get_acls_by_consumer(self):
+        mock_response = MockResponse(
+            {
+                "total": 1,
+                "data": [
+                    {
+                        "group": "bar-group",
+                        "created_at": 1511391162000,
+                        "id": "0905f68e-fee3-4ecb-965c-fcf6912bf29e",
+                        "consumer": {"id": "c0d92ba9-8306-482a-b60d-0cfdd2f0e880"},
+                    }
+                ],
+            }
+        )
+        self.mock_request.return_value = mock_response
+
+        results = self.consumer.get_acls_by_consumer("test-consumer")
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].group, "bar-group")
+
+    def test_get_acl_by_id(self):
+        mock_response = MockResponse(
+            {
+                "group": "foo-group",
+                "created_at": 1511391159000,
+                "id": "724d1be7-c39e-443d-bf36-41db17452c75",
+                "consumer": {"id": "89a41fef-3b40-4bb0-b5af-33da57a7ffcf"},
+            }
+        )
+        self.mock_request.return_value = mock_response
+
+        result = self.consumer.get_acl("test-consumer", "acl-id")
+
+        self.assertEqual(result.group, "foo-group")
+
+    def test_get_consumer_by_acl(self):
+        mock_response = MockResponse(
+            {
+                "created_at": 1507936639000,
+                "username": "foo",
+                "id": "c0d92ba9-8306-482a-b60d-0cfdd2f0e880",
+            }
+        )
+        self.mock_request.return_value = mock_response
+
+        result = self.consumer.get_consumer_by_acl("acl-id")
+
+        self.assertEqual(result["username"], "foo")
+
+    def test_update_or_insert_acl(self):
+        mock_response = MockResponse(
+            {
+                "group": "new-group",
+                "created_at": 1622000000,
+                "id": "acl-id",
+                "consumer": {"id": "consumer-id"},
+            }
+        )
+        self.mock_request.return_value = mock_response
+
+        result = self.consumer.update_or_insert_acl(
+            "test-consumer", "acl-id", group="new-group"
+        )
+
+        self.assertEqual(result.group, "new-group")
+
+    def test_update_acl_group_by_id(self):
+        mock_response = MockResponse(
+            {
+                "group": "group1",
+                "created_at": 1622000000,
+                "id": "acl-id",
+                "consumer": {"id": "consumer-id"},
+            }
+        )
+        self.mock_request.return_value = mock_response
+
+        result = self.consumer.update_acl_group("test-consumer", group="group1")
+
+        self.assertEqual(result.group, "group1")
+
+    def test_delete_acl_by_id(self):
+        mock_response = MockResponse({})
+        self.mock_request.return_value = mock_response
+
+        result = self.consumer.delete_acl("test-consumer", "acl-id")
+
+        self.assertIsNone(result)
+
+    def test_delete_acl_by_group_name(self):
+        mock_response = MockResponse({})
+        self.mock_request.return_value = mock_response
+
+        result = self.consumer.delete_acl("test-consumer", "test-group")
+
+        self.assertIsNone(result)
+
+
+class TestConsumerKeyAuth(unittest.TestCase):
+    def setUp(self):
+        mock_response_auth = MagicMock()
+        mock_response_auth.json.return_value = {"auth_key": "some_auth_value"}
+        mock_response_auth.raise_for_status.return_value = None
+
+        self.get_patcher = patch.object(Session, "get", return_value=mock_response_auth)
+        self.request_patcher = patch.object(
+            Session, "request", return_value=mock_response_auth
+        )
+
+        self.mock_get = self.get_patcher.start()
+        self.mock_request = self.request_patcher.start()
+
+        self.client = KongClient("http://mock-url", admin_token="mock-pass")
+        self.consumer = Consumer(self.client)
+
+    def tearDown(self):
+        self.get_patcher.stop()
+        self.request_patcher.stop()
+
+    def test_create_key_auth(self):
+        mock_response = MockResponse(
+            {
+                "key": "5SRmk6gLnTy1SyQ1Cl9GzoRXJbjYGGbZ",
+                "created_at": 1655412883,
+                "tags": None,
+                "ttl": None,
+                "id": "0103844a-0b40-42c8-aa71-64e98e2e525f",
+                "consumer": {"id": "d9e37c7d-3261-4b7b-81a6-a94bc203a0ca"},
+            }
+        )
+        self.mock_request.return_value = mock_response
+
+        result = self.consumer.add_key_auth("test-consumer")
+
+        self.assertEqual(result.key, "5SRmk6gLnTy1SyQ1Cl9GzoRXJbjYGGbZ")

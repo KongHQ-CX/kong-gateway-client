@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+🆕 New features:
+
+- Added key auth credential creation for consumers
+- Added ACL consumer configuration
 
 ## 0.1.0
 
