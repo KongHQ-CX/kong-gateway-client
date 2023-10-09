@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from requests import Session
-from src.kong_gateway_client.resources.plugins import PluginResource
-from src.kong_gateway_client.client import KongClient
+
+from src.kong_gateway_client.api import KongAPIClient
 import json
 
 
@@ -33,7 +33,9 @@ class TestPluginResource(unittest.TestCase):
         self.mock_get = self.get_patcher.start()
         self.mock_request = self.request_patcher.start()
 
-        self.client = KongClient("http://mock-url", admin_token="mock-pass")
+        self.client = KongAPIClient(
+            "http://mock-url", admin_token="mock-pass"
+        ).get_kong_client()
 
     def tearDown(self):
         self.get_patcher.stop()
@@ -45,8 +47,7 @@ class TestPluginResource(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        result = plugin_resource.create("test-plugin")
+        result = self.client.plugin_resource.create("test-plugin")
         self.assertEqual(result.name, "test-plugin")
 
     def test_plugin_get(self):
@@ -55,8 +56,7 @@ class TestPluginResource(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        result = plugin_resource.get("789")
+        result = self.client.plugin_resource.get("789")
         self.assertEqual(result.name, "test-plugin")
 
     def test_plugin_update(self):
@@ -65,16 +65,14 @@ class TestPluginResource(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        result = plugin_resource.update("789", name="updated-plugin")
+        result = self.client.plugin_resource.update("789", name="updated-plugin")
         self.assertEqual(result.name, "updated-plugin")
 
     def test_plugin_delete(self):
         mock_response = MockResponse({})
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        plugin_resource.delete("789")
+        self.client.plugin_resource.delete("789")
         self.mock_request.assert_called_with(
             "DELETE", "http://mock-url/default/plugins/789", verify=False
         )
@@ -90,8 +88,7 @@ class TestPluginResource(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        results = plugin_resource.list_all()
+        results = self.client.plugin_resource.list_all()
         self.assertEqual(len(results.data), 2)
 
     def test_plugin_create_for_route(self):
@@ -100,8 +97,9 @@ class TestPluginResource(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        result = plugin_resource.create_for_route("test-route", "test-plugin-for-route")
+        result = self.client.plugin_resource.create_for_route(
+            "test-route", "test-plugin-for-route"
+        )
         self.assertEqual(result.name, "test-plugin-for-route")
 
     def test_plugin_get_for_route(self):
@@ -110,8 +108,7 @@ class TestPluginResource(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        result = plugin_resource.get_for_route("test-route", "789")
+        result = self.client.plugin_resource.get_for_route("test-route", "789")
         self.assertEqual(result.name, "test-plugin-for-route")
 
     def test_plugin_update_for_route(self):
@@ -120,8 +117,7 @@ class TestPluginResource(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        result = plugin_resource.update_for_route(
+        result = self.client.plugin_resource.update_for_route(
             "test-route", "789", name="updated-plugin-for-route"
         )
         self.assertEqual(result.name, "updated-plugin-for-route")
@@ -130,8 +126,7 @@ class TestPluginResource(unittest.TestCase):
         mock_response = MockResponse({})
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        plugin_resource.delete_for_route("test-route", "789")
+        self.client.plugin_resource.delete_for_route("test-route", "789")
         self.mock_request.assert_called_with(
             "DELETE",
             "http://mock-url/default/routes/test-route/plugins/789",
@@ -144,8 +139,7 @@ class TestPluginResource(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        result = plugin_resource.create_for_service(
+        result = self.client.plugin_resource.create_for_service(
             "test-service", "test-plugin-for-service"
         )
         self.assertEqual(result.name, "test-plugin-for-service")
@@ -156,8 +150,7 @@ class TestPluginResource(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        result = plugin_resource.get_for_service("test-service", "789")
+        result = self.client.plugin_resource.get_for_service("test-service", "789")
         self.assertEqual(result.name, "test-plugin-for-service")
 
     def test_plugin_update_for_service(self):
@@ -166,8 +159,7 @@ class TestPluginResource(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        result = plugin_resource.update_for_service(
+        result = self.client.plugin_resource.update_for_service(
             "test-service", "789", name="updated-plugin-for-service"
         )
         self.assertEqual(result.name, "updated-plugin-for-service")
@@ -176,8 +168,7 @@ class TestPluginResource(unittest.TestCase):
         mock_response = MockResponse({})
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        plugin_resource.delete_for_service("test-service", "789")
+        self.client.plugin_resource.delete_for_service("test-service", "789")
         self.mock_request.assert_called_with(
             "DELETE",
             "http://mock-url/default/services/test-service/plugins/789",
@@ -190,8 +181,7 @@ class TestPluginResource(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        result = plugin_resource.create_for_consumer(
+        result = self.client.plugin_resource.create_for_consumer(
             "test-consumer", "test-plugin-for-consumer"
         )
         self.assertEqual(result.name, "test-plugin-for-consumer")
@@ -202,8 +192,7 @@ class TestPluginResource(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        result = plugin_resource.get_for_consumer("test-consumer", "789")
+        result = self.client.plugin_resource.get_for_consumer("test-consumer", "789")
         self.assertEqual(result.name, "test-plugin-for-consumer")
 
     def test_plugin_update_for_consumer(self):
@@ -212,8 +201,7 @@ class TestPluginResource(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        result = plugin_resource.update_for_consumer(
+        result = self.client.plugin_resource.update_for_consumer(
             "test-consumer", "789", name="updated-plugin-for-consumer"
         )
         self.assertEqual(result.name, "updated-plugin-for-consumer")
@@ -222,8 +210,7 @@ class TestPluginResource(unittest.TestCase):
         mock_response = MockResponse({})
         self.mock_request.return_value = mock_response
 
-        plugin_resource = PluginResource(self.client)
-        plugin_resource.delete_for_consumer("test-consumer", "789")
+        self.client.plugin_resource.delete_for_consumer("test-consumer", "789")
         self.mock_request.assert_called_with(
             "DELETE",
             "http://mock-url/default/consumers/test-consumer/plugins/789",

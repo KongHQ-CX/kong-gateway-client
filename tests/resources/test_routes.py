@@ -1,9 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from requests import Session
-from src.kong_gateway_client.resources.services import Service
-from src.kong_gateway_client.resources.routes import Route
-from src.kong_gateway_client.client import KongClient
+
+from src.kong_gateway_client.api import KongAPIClient
 import json
 
 
@@ -36,7 +35,9 @@ class TestRoute(unittest.TestCase):
         self.mock_get = self.get_patcher.start()
         self.mock_request = self.request_patcher.start()
 
-        self.client = KongClient("http://mock-url", admin_token="mock-pass")
+        self.client = KongAPIClient(
+            "http://mock-url", admin_token="mock-pass"
+        ).get_kong_client()
 
     def tearDown(self):
         self.get_patcher.stop()
@@ -45,8 +46,7 @@ class TestRoute(unittest.TestCase):
     def test_route_create(self):
         mock_response_routes = MockResponse({"id": "123", "name": "test-route-1"})
         self.mock_request.return_value = mock_response_routes
-        route = Route(self.client)
-        result = route.create("test-route-1", protocols=["http", "https"])
+        result = self.client.route.create("test-route-1", protocols=["http", "https"])
         self.assertEqual(result.name, "test-route-1")
 
     def test_route_get_by_id(self):
@@ -62,8 +62,7 @@ class TestRoute(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        route = Route(self.client)
-        result = route.get("123")
+        result = self.client.route.get("123")
 
         self.assertEqual(result.id, "123")
         self.assertEqual(result.name, "test-route-1")
@@ -82,8 +81,9 @@ class TestRoute(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        route = Route(self.client)
-        result = route.patch("123", name="updated-test-route-1", protocols=["http"])
+        result = self.client.route.patch(
+            "123", name="updated-test-route-1", protocols=["http"]
+        )
 
         self.assertEqual(result.name, "updated-test-route-1")
         self.assertEqual(result.paths[0], "/updated-test-route")
@@ -101,8 +101,9 @@ class TestRoute(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        route = Route(self.client)
-        result = route.put("123", name="recreated-test-route-1", protocols=["http"])
+        result = self.client.route.put(
+            "123", name="recreated-test-route-1", protocols=["http"]
+        )
 
         self.assertEqual(result.name, "recreated-test-route-1")
         self.assertEqual(result.paths[0], "/recreated-test-route")
@@ -111,8 +112,7 @@ class TestRoute(unittest.TestCase):
         mock_response = MockResponse({})
         self.mock_request.return_value = mock_response
 
-        route = Route(self.client)
-        result = route.delete("123")
+        result = self.client.route.delete("123")
         self.assertIsNone(result)
 
 

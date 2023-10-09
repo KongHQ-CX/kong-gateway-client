@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from requests import Session
-from src.kong_gateway_client.resources.services import Service
-from src.kong_gateway_client.client import KongClient
+
+from src.kong_gateway_client.api import KongAPIClient
 import json
 
 
@@ -36,7 +36,9 @@ class TestService(unittest.TestCase):
 
         self.mock_request = self.request_patcher.start()
 
-        self.client = KongClient("http://mock-url", admin_token="mock-pass")
+        self.client = KongAPIClient(
+            "http://mock-url", admin_token="mock-pass"
+        ).get_kong_client()
 
     def tearDown(self):
         self.get_patcher.stop()
@@ -45,8 +47,7 @@ class TestService(unittest.TestCase):
     def test_service_create(self):
         mock_response_services = MockResponse({"id": "123", "name": "test-service-1"})
         self.mock_request.return_value = mock_response_services
-        service = Service(self.client)
-        result = service.create("test-service-1", "http://test-service-1")
+        result = self.client.service.create("test-service-1", "http://test-service-1")
         self.assertEqual(result.name, "test-service-1")
 
     def test_service_get_by_id(self):
@@ -61,8 +62,7 @@ class TestService(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        service = Service(self.client)
-        result = service.get("123")
+        result = self.client.service.get("123")
 
         self.assertEqual(result.id, "123")
         self.assertEqual(result.name, "test-service-1")
@@ -80,8 +80,7 @@ class TestService(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        service = Service(self.client)
-        result = service.get("test-service-1")
+        result = self.client.service.get("test-service-1")
 
         self.assertEqual(result.id, "123")
         self.assertEqual(result.name, "test-service-1")
@@ -99,8 +98,7 @@ class TestService(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        service = Service(self.client)
-        result = service.patch(
+        result = self.client.service.patch(
             "123",
             name="updated-test-service-1",
             url="http://updated-test-url",
@@ -121,8 +119,7 @@ class TestService(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        service = Service(self.client)
-        result = service.put(
+        result = self.client.service.put(
             "123",
             name="recreated-test-service-1",
             url="http://recreated-test-url",
@@ -135,6 +132,5 @@ class TestService(unittest.TestCase):
         mock_response = MockResponse({})
         self.mock_request.return_value = mock_response
 
-        service = Service(self.client)
-        result = service.delete("123")
+        result = self.client.service.delete("123")
         self.assertIsNone(result)

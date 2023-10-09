@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional
-from kong_gateway_client.client import KongClient, ResponseObject
+from kong_gateway_client.client import KongClient
+from kong_gateway_client.common import ResponseObject
 from kong_gateway_client.utils.helpers import validate_id_or_name
 
 
