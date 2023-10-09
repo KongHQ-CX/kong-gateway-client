@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from requests import Session
-from src.kong_gateway_client.resources.consumer_groups import ConsumerGroup
-from src.kong_gateway_client.client import KongClient
+
+from src.kong_gateway_client.api import KongAPIClient
 import json
 
 
@@ -33,7 +33,9 @@ class TestConsumerGroup(unittest.TestCase):
         self.mock_get = self.get_patcher.start()
         self.mock_request = self.request_patcher.start()
 
-        self.client = KongClient("http://mock-url", admin_token="mock-pass")
+        self.client = KongAPIClient(
+            "http://mock-url", admin_token="mock-pass"
+        ).get_kong_client()
 
     def tearDown(self):
         self.get_patcher.stop()
@@ -43,16 +45,14 @@ class TestConsumerGroup(unittest.TestCase):
         mock_response = MockResponse({"id": "456", "name": "test-group"})
         self.mock_request.return_value = mock_response
 
-        consumer_group = ConsumerGroup(self.client)
-        result = consumer_group.create("test-group")
+        result = self.client.consumer_group.create("test-group")
         self.assertEqual(result.name, "test-group")
 
     def test_consumer_group_get(self):
         mock_response = MockResponse({"id": "456", "name": "test-group"})
         self.mock_request.return_value = mock_response
 
-        consumer_group = ConsumerGroup(self.client)
-        result = consumer_group.get("456")
+        result = self.client.consumer_group.get("456")
         self.assertEqual(result.name, "test-group")
 
     def test_consumer_group_get_consumers(self):
@@ -74,16 +74,16 @@ class TestConsumerGroup(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        consumer_group = ConsumerGroup(self.client)
-        results = consumer_group.get_consumers("test-group")
+        results = self.client.consumer_group.get_consumers("test-group")
         self.assertEqual(len(results.consumers), 2)
 
     def test_consumer_group_add_consumer(self):
         mock_response = MockResponse({"consumers": [{"id": "123", "group": "456"}]})
         self.mock_request.return_value = mock_response
 
-        consumer_group = ConsumerGroup(self.client)
-        result = consumer_group.add_consumer("test-consumer-1", "test-group")
+        result = self.client.consumer_group.add_consumer(
+            "test-consumer-1", "test-group"
+        )
         self.assertEqual(len(result.consumers), 1)
         self.assertEqual(result.consumers[0].id, "123")
 
@@ -98,40 +98,37 @@ class TestConsumerGroup(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        consumer_group = ConsumerGroup(self.client)
-        results = consumer_group.get_all()
+        results = self.client.consumer_group.get_all()
         self.assertEqual(len(results), 2)
 
     def test_consumer_group_put(self):
         mock_response = MockResponse({"id": "456", "name": "updated-test-group"})
         self.mock_request.return_value = mock_response
 
-        consumer_group = ConsumerGroup(self.client)
-        result = consumer_group.put("456", name="updated-test-group")
+        result = self.client.consumer_group.put("456", name="updated-test-group")
         self.assertEqual(result.name, "updated-test-group")
 
     def test_consumer_group_delete(self):
         mock_response = MockResponse({})
         self.mock_request.return_value = mock_response
 
-        consumer_group = ConsumerGroup(self.client)
-        result = consumer_group.delete("456")
+        result = self.client.consumer_group.delete("456")
         self.assertIsNone(result)
 
     def test_consumer_group_delete_consumer(self):
         mock_response = MockResponse({})
         self.mock_request.return_value = mock_response
 
-        consumer_group = ConsumerGroup(self.client)
-        result = consumer_group.delete_consumer("test-group", "test-consumer-1")
+        result = self.client.consumer_group.delete_consumer(
+            "test-group", "test-consumer-1"
+        )
         self.assertIsNone(result)
 
     def test_consumer_group_delete_consumers(self):
         mock_response = MockResponse({})
         self.mock_request.return_value = mock_response
 
-        consumer_group = ConsumerGroup(self.client)
-        result = consumer_group.delete_consumers("test-group")
+        result = self.client.consumer_group.delete_consumers("test-group")
         self.assertIsNone(result)
 
     def test_consumer_group_configure_rate_limit(self):
@@ -149,8 +146,9 @@ class TestConsumerGroup(unittest.TestCase):
         )
         self.mock_request.return_value = mock_response
 
-        consumer_group = ConsumerGroup(self.client)
-        result = consumer_group.configure_rate_limit("test-group", [10], [60])
+        result = self.client.consumer_group.configure_rate_limit(
+            "test-group", [10], [60]
+        )
         self.assertEqual(result.config["limit"][0], 10)
         self.assertEqual(result.config["window_size"][0], 60)
         self.assertEqual(result.group, "456")

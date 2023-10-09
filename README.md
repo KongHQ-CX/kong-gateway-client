@@ -19,40 +19,32 @@ Install directly from the PyPi
 
 ```bash
 
-pip install kong-gateway-client.git
+pip install kong-gateway-client
 ```
 
-## Quick start
+## Quick start & Usage
 
 Initialize the client:
 
 ```python
+from kong_gateway_client.api import KongAPIClient
 
-from kong_gateway_client.client import KongClient
+client = KongAPIClient(
+    admin_url="https://your-kong-url",
+    admin_token="your-admin-user"
+)
 
-client = KongClient(admin_url="http://your-kong-url:8001", admin_token="your-admin-token")
-```
+# Work with routes, services, consumers, and consumer groups.
+all_routes = client.route.get_all()
+for route in all_routes:
+    client.route.delete(route.id)
 
-## Working with Plugins
+service_create = client.service.create("service-name", url="http://example.com")
 
-Here's a brief overview of how to use some of the plugin features:
+route_create = client.route.create_for_service("route-name", service_create.id, paths=["/path"])
 
-### ACL Plugin
+key_auth_plugin = client.key_auth_plugin.create(service_create.id, key_names=["key-name"])
 
-```python
-from kong_gateway_client.resources.plugin_types.acl import ACLPlugin
-
-acl_plugin = ACLPlugin(client.plugin_resource)
-result = acl_plugin.create(service_id="123", allow=["admin"])
-```
-
-### Rate Limiting Advanced Plugin
-
-```python
-from kong_gateway_client.resources.plugin_types.rate_limiting_advanced import RateLimitingAdvancedPlugin
-
-rla_plugin = RateLimitingAdvancedPlugin(client.plugin_resource)
-result = rla_plugin.create(service_id="123", limit=[100])
 ```
 
 ### Handling Responses

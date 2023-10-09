@@ -1,8 +1,21 @@
 import unittest
 import requests
 from unittest.mock import patch, MagicMock
+from kong_gateway_client.client import KongClient
+from kong_gateway_client.common import ResponseObject
+from kong_gateway_client.resources.consumer_groups import ConsumerGroup
+from kong_gateway_client.resources.services import Service
+from kong_gateway_client.resources.routes import Route
+from kong_gateway_client.resources.consumers import Consumer
+from kong_gateway_client.resources.plugins import PluginResource
+from kong_gateway_client.resources.plugin_types.key_auth import KeyAuthPlugin
+from kong_gateway_client.resources.plugin_types.acl import ACLPlugin
+from kong_gateway_client.resources.plugin_types.rate_limiting_advanced import (
+    RateLimitingAdvancedPlugin,
+)
 
-from src.kong_gateway_client.client import KongClient
+
+from src.kong_gateway_client.api import KongAPIClient
 import json
 
 
@@ -38,7 +51,19 @@ class TestKongClient(unittest.TestCase):
         self.mock_get = self.get_patcher.start()
         self.mock_request = self.request_patcher.start()
 
-        self.client = KongClient(admin_url="http://mock-url", admin_token="mock-token")
+        self.client = KongClient(
+            Service,
+            Route,
+            PluginResource,
+            Consumer,
+            ConsumerGroup,
+            KeyAuthPlugin,
+            ACLPlugin,
+            RateLimitingAdvancedPlugin,
+            ResponseObject,
+            admin_url="http://mock-url",
+            admin_token="mock-token",
+        )
 
     def tearDown(self):
         self.get_patcher.stop()

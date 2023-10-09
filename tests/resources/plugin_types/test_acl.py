@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from src.kong_gateway_client.resources.plugins import PluginResource
 from src.kong_gateway_client.resources.plugin_types.acl import ACLPlugin
-from src.kong_gateway_client.client import KongClient
+from src.kong_gateway_client.api import KongAPIClient
 import json
 
 
@@ -35,7 +35,9 @@ class TestACLPlugin(unittest.TestCase):
         self.mock_get = self.get_patcher.start()
         self.mock_request = self.request_patcher.start()
 
-        self.client = KongClient("http://mock-url", admin_token="mock-pass")
+        self.client = KongAPIClient(
+            "http://mock-url", admin_token="mock-pass"
+        ).get_kong_client()
         self.plugin_resource = PluginResource(self.client)
 
     def tearDown(self):
