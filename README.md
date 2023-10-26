@@ -24,7 +24,7 @@ pip install kong-gateway-client
 
 ## Quick start & Usage
 
-Initialize the client:
+Initialize the client to use default workspace:
 
 ```python
 from kong_gateway_client.api import KongAPIClient
@@ -46,6 +46,30 @@ route_create = client.route.create_for_service("route-name", service_create.id, 
 key_auth_plugin = client.key_auth_plugin.create(service_create.id, key_names=["key-name"])
 
 ```
+Initialize the client with a specific workspace:
+
+```python
+from kong_gateway_client.api import KongAPIClient
+
+client = KongAPIClient(
+    admin_url="https://your-kong-url",
+    admin_token="your-admin-user",
+    target_workspace="your-workspace"
+)
+
+# Work with routes, services, consumers, and consumer groups.
+all_routes = client.route.get_all()
+for route in all_routes:
+    client.route.delete(route.id)
+
+service_create = client.service.create("service-name", url="http://example.com")
+
+route_create = client.route.create_for_service("route-name", service_create.id, paths=["/path"])
+
+key_auth_plugin = client.key_auth_plugin.create(service_create.id, key_names=["key-name"])
+
+```
+
 
 ### Handling Responses
 

@@ -146,7 +146,7 @@ class Service:
         return KongService(response_data)
 
     @validate_id_or_name
-    def delete(self, id_or_name: str) -> KongService:
+    def delete(self, id_or_name: str):
         """
         Delete a service by its ID or name.
 

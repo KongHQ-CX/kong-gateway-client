@@ -3,6 +3,7 @@ from kong_gateway_client.client import KongClient
 from kong_gateway_client.common import ResponseObject
 from kong_gateway_client.resources.consumer_groups import ConsumerGroup
 from kong_gateway_client.resources.services import Service
+from kong_gateway_client.resources.workspaces import Workspace
 from kong_gateway_client.resources.routes import Route
 from kong_gateway_client.resources.consumers import Consumer
 from kong_gateway_client.resources.plugins import PluginResource
@@ -22,7 +23,7 @@ class KongAPIClient:
         idp_user: Optional[str] = None,
         idp_pass: Optional[str] = None,
         verify_tls: bool = False,
-        workspace: str = "default",
+        target_workspace: str = "default",
     ):
         self.client = KongClient(
             Service,
@@ -34,13 +35,14 @@ class KongAPIClient:
             ACLPlugin,
             RateLimitingAdvancedPlugin,
             ResponseObject,
+            Workspace,
             admin_url=admin_url,
             admin_token=admin_token,
             admin_user=admin_user,
             idp_user=idp_user,
             idp_pass=idp_pass,
             verify_tls=verify_tls,
-            workspace=workspace,
+            target_workspace=target_workspace,
         )
 
     def __getattr__(self, name):
