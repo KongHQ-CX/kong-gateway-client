@@ -19,13 +19,14 @@ class KongClient:
         acl_plugin,
         rla_plugin,
         response_object,
+        workspace,
         admin_url: str = "http://localhost:8001",
         admin_token: Optional[str] = None,
         admin_user: str = "kong_admin",
         idp_user: Optional[str] = None,
         idp_pass: Optional[str] = None,
         verify_tls: bool = False,
-        workspace: str = "default",
+        target_workspace: str = "default",
     ) -> None:
         """
         Initialize a KongClient.
@@ -44,14 +45,14 @@ class KongClient:
                                          Defaults to False.
             workspace (str, optional): The workspace to use. Defaults to "default".
         """
-        self.admin_ws_url = f"{admin_url}/{workspace}"
+        self.admin_ws_url = f"{admin_url}/{target_workspace}"
         self.admin_url = admin_url
         self.admin_token = admin_token
         self.admin_user = admin_user
         self.idp_user = idp_user
         self.idp_pass = idp_pass
         self.tls = verify_tls
-        self.workspace = workspace
+        self.target_workspace = target_workspace
         if not self.tls:
             urllib3.disable_warnings()
 
@@ -69,6 +70,7 @@ class KongClient:
         self.rla_plugin = rla_plugin(self.plugin_resource)
         self.route = route(self)
         self.response_object = response_object
+        self.workspace = workspace(self)
 
     def headers(self) -> Dict[str, str]:
         """

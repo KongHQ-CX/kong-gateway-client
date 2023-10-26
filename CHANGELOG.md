@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.5.0
+
+🆕 New features:
+
+- Added the workspace resource, users can perform CRUD operations on workspaces
+  via the client
+- Updated the validators so that they now check args and keyword args
+
+🔧 Fixes:
+
+- Fixed the return value of delete service
+
+💥 Breaking changes:
+
+- The workspace argument is now target_workspace
+
+  ([PR #5](https://github.com/KongHQ-CX/kong-gateway-client/pull/5))
+
+
 ## 0.4.0
 
 🆕 New features:

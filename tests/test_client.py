@@ -5,6 +5,7 @@ from kong_gateway_client.client import KongClient
 from kong_gateway_client.common import ResponseObject
 from kong_gateway_client.resources.consumer_groups import ConsumerGroup
 from kong_gateway_client.resources.services import Service
+from kong_gateway_client.resources.workspaces import Workspace
 from kong_gateway_client.resources.routes import Route
 from kong_gateway_client.resources.consumers import Consumer
 from kong_gateway_client.resources.plugins import PluginResource
@@ -15,7 +16,6 @@ from kong_gateway_client.resources.plugin_types.rate_limiting_advanced import (
 )
 
 
-from src.kong_gateway_client.api import KongAPIClient
 import json
 
 
@@ -61,6 +61,7 @@ class TestKongClient(unittest.TestCase):
             ACLPlugin,
             RateLimitingAdvancedPlugin,
             ResponseObject,
+            Workspace,
             admin_url="http://mock-url",
             admin_token="mock-token",
         )
