@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.0
+
+🆕 New features:
+
+- Made consumer groups class iterable
+
+🔧 Fixes:
+
+- Updated the client code to be aware of when to append the workspace name to a request
+- Updated the workspace resource to specify not using the workspace based endpoint
+  for any calls made by the workspace resource class.
+
 ## 0.5.0
 
 🆕 New features:

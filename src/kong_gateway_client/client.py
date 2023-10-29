@@ -147,13 +147,22 @@ class KongClient:
 
         return all_data
 
-    def request(self, method: str, endpoint: str, **kwargs: Any) -> Any:
+    def request(
+        self,
+        method: str,
+        endpoint: str,
+        workspace_endpoint: bool = True,
+        **kwargs: Any,
+    ) -> Any:
         """
-        Send a request to the Kong Admin API and handle the response.
+        Send a request to the Kong Admin API without a specified workspace and handle
+        the response.
 
         Args:
             method (str): The HTTP method (e.g., GET, POST, PUT).
             endpoint (str): The endpoint for the request.
+            workspace_endpoint (bool): should provided endpiont be treated
+                                       as a workspace specific enpoint. default True
             **kwargs: Additional arguments passed to the requests session.
 
         Returns:
@@ -162,8 +171,12 @@ class KongClient:
         Raises:
             ValueError: When connection to the Kong Admin API fails.
         """
+        if workspace_endpoint:
+            admin_url = self.admin_ws_url
+        else:
+            admin_url = self.admin_url
         try:
-            url = f"{self.admin_ws_url}{endpoint}"
+            url = f"{admin_url}{endpoint}"
             if method == "GET" or method == "DELETE":
                 self.session.headers.update({"Content-Type": ""})
             else:
@@ -182,7 +195,7 @@ class KongClient:
         except requests.ConnectionError:
             raise ValueError(
                 (
-                    f"Failed to connect to {self.admin_ws_url}{endpoint}."
+                    f"Failed to connect to {admin_url}{endpoint}."
                     "Please ensure the URL is correct and reachable."
                 )
             )

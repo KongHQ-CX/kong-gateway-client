@@ -57,6 +57,10 @@ class KongConsumerConsumerGroups:
         """String representation of the KongConsumerConsumerGroups object."""
         return f"<KongConsumerConsumerGroups(consumer_groups={self.consumer_groups}>"
 
+    def __iter__(self):
+        """Return iterator for consumer groups."""
+        return iter(self.consumer_groups)
+
 
 class KongConsumerGroupConsumers:
     def __init__(self, data: ResponseObject):

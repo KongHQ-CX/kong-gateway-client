@@ -94,7 +94,7 @@ class Workspace:
 
         data = {"name": name}
 
-        response_data = self.client.request("POST", self.ENTITY_PATH, json=data)
+        response_data = self.client.request("POST", self.ENTITY_PATH, False, json=data)
         return KongWorkspace(response_data)
 
     @validate_id_or_name
@@ -108,7 +108,9 @@ class Workspace:
         Returns:
         - KongWorkspace: Response from Kong.
         """
-        response_data = self.client.request("GET", f"{self.ENTITY_PATH}/{id_or_name}")
+        response_data = self.client.request(
+            "GET", f"{self.ENTITY_PATH}/{id_or_name}", False
+        )
         return KongWorkspace(response_data)
 
     @validate_id_or_name
@@ -123,7 +125,7 @@ class Workspace:
         - KongWorkspace: Response from Kong.
         """
         response_data = self.client.request(
-            "DELETE", f"{self.ENTITY_PATH}/{id_or_name}"
+            "DELETE", f"{self.ENTITY_PATH}/{id_or_name}", False
         )
         return response_data
 
@@ -139,7 +141,9 @@ class Workspace:
         - WorkspaceMetadata: Metadata response from Kong.
         """
         response_data = self.client.request(
-            "GET", f"{self.ENTITY_PATH}/{id_or_name}/meta"
+            "GET",
+            f"{self.ENTITY_PATH}/{id_or_name}/meta",
+            False,
         )
         return WorkspaceMetadata(response_data)
 
@@ -161,7 +165,7 @@ class Workspace:
             data["comment"] = comment
 
         response_data = self.client.request(
-            "PATCH", f"{self.ENTITY_PATH}/{id_or_name}", json=data
+            "PATCH", f"{self.ENTITY_PATH}/{id_or_name}", False, json=data
         )
         return KongWorkspace(response_data)
 
@@ -187,5 +191,5 @@ class Workspace:
             else f"{self.ENTITY_PATH}/{id_or_name}"
         )
 
-        response_data = self.client.request("PUT", endpoint, json=data)
+        response_data = self.client.request("PUT", endpoint, False, json=data)
         return KongWorkspace(response_data)
